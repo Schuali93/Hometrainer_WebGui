@@ -36,7 +36,7 @@ function initHeartrateCard() {
     const heartrateText = document.createElement("p");
     heartrateText.classList.add("uid");
     heartrateText.id = "heartrate-value";
-    heartrateText.textContent = `Heartrate: ${heartrate} bpm`;
+    heartrateText.textContent = `Heartrate: 0 bpm`;
 
     heartrateCard.appendChild(lanSymbol);
     heartrateCard.appendChild(heartrateText);
@@ -61,7 +61,7 @@ function initResistanceCard() {
     const resistanceText = document.createElement("p");
     resistanceText.classList.add("uid");
     resistanceText.id = "resistance-value";
-    resistanceText.textContent = `Resistance: ${resistance}`;
+    resistanceText.textContent = `Resistance: 0`;
 
     resistanceCard.appendChild(resistanceIcon);
     resistanceCard.appendChild(resistanceText);
@@ -86,7 +86,7 @@ function initPowerCard() {
     const powerText = document.createElement("p");
     powerText.classList.add("uid");
     powerText.id = "power-value"; // Correct ID for the power value
-    powerText.textContent = `Power: ${power} W`;
+    powerText.textContent = `Power: 0 W`;
 
     powerCard.appendChild(powerIcon);
     powerCard.appendChild(powerText);
@@ -111,7 +111,7 @@ function initSpeedCard() {
     const speedText = document.createElement("p");
     speedText.classList.add("uid");
     speedText.id = "speed-value"; // Correct ID for the speed value
-    speedText.textContent = `Speed: ${speed} km/h`;
+    speedText.textContent = `Speed: 0 km/h`;
 
     speedCard.appendChild(speedIcon);
     speedCard.appendChild(speedText);
@@ -136,7 +136,7 @@ function initRpmCard() {
     const rpmText = document.createElement("p");
     rpmText.classList.add("uid");
     rpmText.id = "rpm-value"; // Correct ID for the RPM value
-    rpmText.textContent = `RPM: ${rpm}`;
+    rpmText.textContent = `RPM: 0`;
 
     rpmCard.appendChild(rpmIcon);
     rpmCard.appendChild(rpmText);
