@@ -23,7 +23,8 @@ var rpmPoints = []; // Add rpmPoints array
  * @brief Initializes the heartrate card UI element.
  */
 function initHeartrateCard() {
-    // Create the heartrate card if it doesn't exist
+    const clientsContainer = document.getElementById("clients-container");
+
     heartrateCard = document.createElement("div");
     heartrateCard.classList.add("card");
     heartrateCard.id = "heartrate-card";
@@ -48,7 +49,8 @@ function initHeartrateCard() {
  * @brief Initializes the resistance card UI element.
  */
 function initResistanceCard() {
-    // Create the resistance card if it doesn't exist
+    const clientsContainer = document.getElementById("clients-container");
+
     resistanceCard = document.createElement("div");
     resistanceCard.classList.add("card");
     resistanceCard.id = "resistance-card";
@@ -73,7 +75,8 @@ function initResistanceCard() {
  * @brief Initializes the power card UI element.
  */
 function initPowerCard() {
-    // Create the power card if it doesn't exist
+    const clientsContainer = document.getElementById("clients-container");
+
     powerCard = document.createElement("div");
     powerCard.classList.add("card");
     powerCard.id = "power-card";
@@ -98,7 +101,8 @@ function initPowerCard() {
  * @brief Initializes the speed card UI element.
  */
 function initSpeedCard() {
-    // Create the speed card if it doesn't exist
+    const clientsContainer = document.getElementById("clients-container");
+
     speedCard = document.createElement("div");
     speedCard.classList.add("card");
     speedCard.id = "speed-card";
@@ -123,7 +127,8 @@ function initSpeedCard() {
  * @brief Initializes the RPM card UI element.
  */
 function initRpmCard() {
-    // Create the RPM card if it doesn't exist
+    const clientsContainer = document.getElementById("clients-container");
+
     rpmCard = document.createElement("div");
     rpmCard.classList.add("card");
     rpmCard.id = "rpm-card";
