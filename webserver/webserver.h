@@ -30,6 +30,7 @@ private:
     std::string WebServer_BuildAddress();
     std::string WebServer_JsonifyClients();
     void WebServer_BroadCastToWebClients(std::string data);
+    void WebServer_BroadCastToSensors(std::string data);
     static void WebServer_EventHandler(struct mg_connection *pConnection, int Event, void *pEvent_Data);
 
 };

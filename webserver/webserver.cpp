@@ -41,6 +41,25 @@ void WebServer::WebServer_BroadCastToWebClients(std::string data)
     }
 }
 
+void WebServer::WebServer_BroadCastToSensors(std::string data) {
+    for (const auto& client : this->mClients)
+    {
+        if(client.Type == "sensor")
+        {
+            cout << "Broadcasting to sensor client: " << client.Uid << endl;
+            double power = 0;
+            mg_json_get_num(mg_str(data.c_str()), "$.data.power", &power);
+            double rpm = 0;
+            mg_json_get_num(mg_str(data.c_str()), "$.data.rpm", &rpm);
+            cout << "Power: " << power << " RPM: " << rpm << endl;
+
+            string tmp = std::to_string(power) + "," + std::to_string(rpm);
+            mg_ws_send(client.Connection, tmp.c_str(), strlen(tmp.c_str()), WEBSOCKET_OP_TEXT);
+        }
+        
+    }
+}
+
 WebServer::WebServer(std::string Address, size_t Port, std::string RootDir)
 {
     this->mAddress = Address;
@@ -166,6 +185,7 @@ void WebServer::WebServer_EventHandler(mg_connection *pConnection, int Event, vo
         {
             // Broadcast measurement to all connected web clients
             server->WebServer_BroadCastToWebClients(string(wm->data.buf));
+            server->WebServer_BroadCastToSensors(string(wm->data.buf));
         }
 
         mg_free(str);

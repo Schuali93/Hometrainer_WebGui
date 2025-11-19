@@ -1,3 +1,0 @@
-/Users/stephanschuler/Programming/WebServer/project/Mongoose_Server/build/CMakeFiles/MongooseServer.dir
-/Users/stephanschuler/Programming/WebServer/project/Mongoose_Server/build/CMakeFiles/edit_cache.dir
-/Users/stephanschuler/Programming/WebServer/project/Mongoose_Server/build/CMakeFiles/rebuild_cache.dir
