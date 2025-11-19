@@ -23,7 +23,8 @@ var rpmPoints = []; // Add rpmPoints array
  * @brief Initializes the heartrate card UI element.
  */
 function initHeartrateCard() {
-    // Create the heartrate card if it doesn't exist
+    const clientsContainer = document.getElementById("clients-container");
+
     heartrateCard = document.createElement("div");
     heartrateCard.classList.add("card");
     heartrateCard.id = "heartrate-card";
@@ -36,7 +37,7 @@ function initHeartrateCard() {
     const heartrateText = document.createElement("p");
     heartrateText.classList.add("uid");
     heartrateText.id = "heartrate-value";
-    heartrateText.textContent = `Heartrate: ${heartrate} bpm`;
+    heartrateText.textContent = `Heartrate: 0 bpm`;
 
     heartrateCard.appendChild(lanSymbol);
     heartrateCard.appendChild(heartrateText);
@@ -48,7 +49,8 @@ function initHeartrateCard() {
  * @brief Initializes the resistance card UI element.
  */
 function initResistanceCard() {
-    // Create the resistance card if it doesn't exist
+    const clientsContainer = document.getElementById("clients-container");
+
     resistanceCard = document.createElement("div");
     resistanceCard.classList.add("card");
     resistanceCard.id = "resistance-card";
@@ -61,7 +63,7 @@ function initResistanceCard() {
     const resistanceText = document.createElement("p");
     resistanceText.classList.add("uid");
     resistanceText.id = "resistance-value";
-    resistanceText.textContent = `Resistance: ${resistance}`;
+    resistanceText.textContent = `Resistance: 0`;
 
     resistanceCard.appendChild(resistanceIcon);
     resistanceCard.appendChild(resistanceText);
@@ -73,7 +75,8 @@ function initResistanceCard() {
  * @brief Initializes the power card UI element.
  */
 function initPowerCard() {
-    // Create the power card if it doesn't exist
+    const clientsContainer = document.getElementById("clients-container");
+
     powerCard = document.createElement("div");
     powerCard.classList.add("card");
     powerCard.id = "power-card";
@@ -86,7 +89,7 @@ function initPowerCard() {
     const powerText = document.createElement("p");
     powerText.classList.add("uid");
     powerText.id = "power-value"; // Correct ID for the power value
-    powerText.textContent = `Power: ${power} W`;
+    powerText.textContent = `Power: 0 W`;
 
     powerCard.appendChild(powerIcon);
     powerCard.appendChild(powerText);
@@ -98,7 +101,8 @@ function initPowerCard() {
  * @brief Initializes the speed card UI element.
  */
 function initSpeedCard() {
-    // Create the speed card if it doesn't exist
+    const clientsContainer = document.getElementById("clients-container");
+
     speedCard = document.createElement("div");
     speedCard.classList.add("card");
     speedCard.id = "speed-card";
@@ -111,7 +115,7 @@ function initSpeedCard() {
     const speedText = document.createElement("p");
     speedText.classList.add("uid");
     speedText.id = "speed-value"; // Correct ID for the speed value
-    speedText.textContent = `Speed: ${speed} km/h`;
+    speedText.textContent = `Speed: 0 km/h`;
 
     speedCard.appendChild(speedIcon);
     speedCard.appendChild(speedText);
@@ -123,7 +127,8 @@ function initSpeedCard() {
  * @brief Initializes the RPM card UI element.
  */
 function initRpmCard() {
-    // Create the RPM card if it doesn't exist
+    const clientsContainer = document.getElementById("clients-container");
+
     rpmCard = document.createElement("div");
     rpmCard.classList.add("card");
     rpmCard.id = "rpm-card";
@@ -136,7 +141,7 @@ function initRpmCard() {
     const rpmText = document.createElement("p");
     rpmText.classList.add("uid");
     rpmText.id = "rpm-value"; // Correct ID for the RPM value
-    rpmText.textContent = `RPM: ${rpm}`;
+    rpmText.textContent = `RPM: 0`;
 
     rpmCard.appendChild(rpmIcon);
     rpmCard.appendChild(rpmText);
