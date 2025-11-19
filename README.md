@@ -25,10 +25,11 @@ A real-time web-based dashboard for monitoring indoor bike/hometrainer metrics. 
 - **Responsive UI** - Clean, modern dashboard with Material Design icons
 - **Multi-client support** - Handle multiple connected devices simultaneously
 - **Resistance control** - Adjust bike resistance remotely through the interface
+- **BLE Power Meter Emulation** - ESP32-based virtual power meter broadcasts data to cycling apps and devices
 
 ## 🏗️ Architecture
 
-The project consists of two main components:
+The project consists of three main components:
 
 ### 1. Device Component (Python)
 - **Location**: `device/`
@@ -47,9 +48,18 @@ The project consists of two main components:
   - `html/` - Web frontend (HTML, CSS, JavaScript)
   - `mongoose.c/h` - Mongoose embedded web server library
 
+### 3. BLE CSC Component (Arduino/ESP32) [Optional]
+- **Location**: `ble_csc/csc_transmitter/`
+- **Purpose**: Virtual BLE Cycling Power Service transmitter for third-party cycling apps
+- **Key files**:
+  - `csc_transmitter.ino` - ESP32 BLE power meter emulator
+- **Features**: Receives power/cadence data via WebSocket and broadcasts it as a BLE Cycling Power Service, allowing cycling apps (Zwift, TrainerRoad, etc.) to connect to your hometrainer setup
+
 **Data Flow**:
 ```
 Fitness Equipment (BLE) → Python Client → WebSocket → C++ Server → Web Browser
+                                              ↓
+                                    ESP32 BLE Transmitter → Cycling Apps (BLE)
 ```
 
 ## 🔧 Prerequisites
@@ -66,6 +76,14 @@ Fitness Equipment (BLE) → Python Client → WebSocket → C++ Server → Web B
 - CMake 3.10+
 - C++ compiler with C++11 support (GCC, Clang, MSVC)
 - Make or Ninja build system
+
+### For BLE CSC Component (Optional)
+- ESP32 development board (ESP32, ESP32-C3, ESP32-C6, or similar)
+- Arduino IDE or PlatformIO
+- Required Arduino libraries:
+  - `NimBLE-Arduino` - BLE stack for ESP32
+  - `WebSocketsClient` - WebSocket client library
+  - `WiFi` - ESP32 WiFi (built-in)
 
 ## 📦 Installation
 
@@ -93,6 +111,34 @@ When prompted, select:
 - Or `configure` followed by `build` for separate steps
 
 The built executable `MongooseServer` will be created in the `webserver/` directory.
+
+### 4. Setup BLE CSC Component (Optional)
+This component allows third-party cycling apps to connect to your hometrainer via BLE.
+
+1. Install Arduino IDE and required libraries:
+   - Install [Arduino IDE](https://www.arduino.cc/en/software)
+   - In Arduino IDE, add ESP32 board support via Board Manager
+   - Install libraries via Library Manager:
+     - `NimBLE-Arduino` by h2zero
+     - `WebSockets` by Markus Sattler
+
+2. Configure the ESP32:
+   - Open `ble_csc/csc_transmitter/csc_transmitter.ino` in Arduino IDE
+   - Update WiFi credentials:
+     ```cpp
+     const char* ssid = "Your_WiFi_SSID";
+     const char* password = "Your_WiFi_Password";
+     ```
+   - Update WebSocket server address (must match your WebServer):
+     ```cpp
+     const char* ws_host = "192.168.0.88";
+     const uint16_t ws_port = 8000;
+     ```
+
+3. Upload to ESP32:
+   - Connect your ESP32 board via USB
+   - Select the correct board and port in Arduino IDE
+   - Click "Upload"
 
 ## ⚙️ Configuration
 
@@ -151,6 +197,17 @@ cd device
 python test.py
 ```
 
+### Using with Cycling Apps (Optional)
+If you've set up the BLE CSC component:
+
+1. Power on your ESP32 device - it will connect to WiFi and the WebSocket server
+2. The ESP32 will advertise as "Power Meter" via BLE
+3. Open your cycling app (Zwift, TrainerRoad, Wahoo, etc.)
+4. Search for sensors and connect to "Power Meter"
+5. The app will receive real-time power and cadence data from your hometrainer
+
+**Supported by**: Any cycling app that supports the Bluetooth Cycling Power Service (most modern cycling apps)
+
 ## 📁 Project Structure
 
 ```
@@ -171,6 +228,9 @@ Hometrainer_WebGui/
 │   │   └── styles.css           # Styling
 │   └── util/                    # Utility modules
 │       └── JsonParser.cpp/h     # JSON parsing utilities
+├── ble_csc/                     # BLE Cycling Power transmitter (optional)
+│   └── csc_transmitter/
+│       └── csc_transmitter.ino  # ESP32 BLE power meter emulator
 └── README.md                    # This file
 ```
 
@@ -198,6 +258,14 @@ Hometrainer_WebGui/
 - Check browser console for errors (F12)
 - Ensure the server's `html/` directory contains all necessary files
 - Try accessing from the same machine first (localhost)
+
+### BLE CSC Issues (ESP32)
+- Ensure the ESP32 is powered on and connected to WiFi
+- Verify the WebSocket server address and port match your configuration
+- Check the Arduino IDE Serial Monitor for connection status
+- If cycling apps can't find "Power Meter", ensure BLE is enabled on your device
+- Some apps require the sensor to be actively transmitting data - ensure the Python client is running and sending data
+- Try resetting the ESP32 if it becomes unresponsive
 
 ## 📄 License
 
