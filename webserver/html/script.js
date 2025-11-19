@@ -445,6 +445,7 @@ async function getClients() {
 
         // Get the LAN symbol element
         const lanSymbol = document.getElementById("lan-symbol");
+        const sensorSymbol = document.getElementById("sensor-symbol");
 
         data.clients.forEach(client => {
             const position = client.uid.indexOf(':');
@@ -463,6 +464,20 @@ async function getClients() {
             // Keep the LAN symbol grey
             lanSymbol.style.color = "#9799ab"; // Grey color
         }
+
+        
+        // Check if "MockIndoorBike" is in the clients list
+        isConnected = data.clients.some(client => client.uid === "esp32c6_power");
+
+        if (isConnected) {
+            // Turn the LAN symbol green
+            sensorSymbol.style.color = "#4caf50"; // Green color
+        } else {
+            // Keep the LAN symbol grey
+            sensorSymbol.style.color = "#9799ab"; // Grey color
+        }
+
+
     } catch (error) {
         console.error("Failed to fetch clients list:", error);
 
@@ -471,6 +486,7 @@ async function getClients() {
         lanSymbol.style.color = "#9799ab"; // Grey color
     }
 }
+
 
 getClients();
 initHeartrateCard();
