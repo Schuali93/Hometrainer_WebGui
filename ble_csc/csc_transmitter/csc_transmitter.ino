@@ -2,12 +2,9 @@
 #include <NimBLEDevice.h>
 #include <WiFi.h>
 #include <WebSocketsClient.h>
-
+#include "secrets.h"
 
 WebSocketsClient webSocket;
-// WiFi credentials
-const char* ssid = "xxxxxxxx";
-const char* password = "xxxxxxxxxx";
 
 // WebSocket server parameters
 const char* ws_host = "192.168.0.88"; // Change to your server's IP or hostname
