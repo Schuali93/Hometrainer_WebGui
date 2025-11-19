@@ -6,18 +6,13 @@
 
 WebSocketsClient webSocket;
 
-// WebSocket server parameters
-const char* ws_host = "192.168.0.88"; // Change to your server's IP or hostname
-const uint16_t ws_port = 8000;
-const char* ws_path = "/websocket";
-
+// BLE server and characteristic pointers
 static NimBLEServer* pServer;
 static NimBLECharacteristic* powerMeasChar = nullptr;
 
 // Standard Cycling Power Service and Measurement UUIDs
 static const uint16_t CYCLING_POWER_SERVICE_UUID = 0x1818;
 static const uint16_t CYCLING_POWER_MEAS_UUID    = 0x2A63;
-
 static int16_t power = 0;
 
 // Cadence integration variables
@@ -25,6 +20,10 @@ static float latestRpm = 0.0f;
 static uint16_t cumulativeCrankRevs = 0;
 static float crankRevFraction = 0.0f;
 static uint16_t lastCrankEventTime = 0; // in 1/1024s
+
+// Timing variables
+unsigned long lastNotify = 0;
+unsigned long lastCrankUpdate = 0;
 
 // Server callbacks (optional, for connection info)
 class ServerCallbacks : public NimBLEServerCallbacks {
@@ -48,20 +47,20 @@ class PowerCharCallbacks : public NimBLECharacteristicCallbacks {
     }
 } powerCharCallbacks;
 
-// WebSocket event handler
+
 void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
     switch(type) {
         case WStype_DISCONNECTED:
-            Serial.println("[WS] Disconnected");
+            Serial.println("Disconnected");
             break;
         case WStype_CONNECTED:
-            Serial.println("[WS] Connected");
+            Serial.println("Connected");
             // Optionally send a hello message
             webSocket.sendTXT("{\"msgtype\": \"identification\", \"action\": \"response\", \"type\": \"sensor\", \"uid\": \"esp32c6_power\" }");
             break;
         case WStype_TEXT:
         {
-            Serial.printf("[WS] Received: %s\n", payload);
+            Serial.printf("Received: %s\n", payload);
             // Expecting payload as "power,rpm" (e.g., "210,85")
             int p = 0;
             float r = 0.0f;
@@ -143,11 +142,9 @@ void setup() {
     Serial.println("Advertising Started");
 }
 
-unsigned long lastNotify = 0;
-unsigned long lastCrankUpdate = 0;
-
 void loop() {
-    webSocket.loop(); // keep WebSocket client alive
+
+    webSocket.loop();
 
     static bool wasConnected = false;
     bool isConnected = (pServer->getConnectedCount() > 0);
@@ -160,6 +157,7 @@ void loop() {
         float revs = (latestRpm / 60.0f) * dt;
         crankRevFraction += revs;
         uint16_t wholeRevs = (uint16_t)crankRevFraction;
+
         if (wholeRevs > 0) {
             cumulativeCrankRevs += wholeRevs;
             crankRevFraction -= wholeRevs;

@@ -1,1 +1,3 @@
 ble_csc/csc_transmitter/secrets.h
+.vscode
+build
