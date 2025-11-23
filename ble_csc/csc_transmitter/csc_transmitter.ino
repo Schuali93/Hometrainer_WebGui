@@ -154,7 +154,6 @@ void setup() {
 }
 
 void loop() {
-
     webSocket.loop();
 
     static bool wasConnected = false;
@@ -162,7 +161,6 @@ void loop() {
 
     if (isConnected) {
         unsigned long now = millis();
-
         float dt = (now - lastCrankUpdate) / 1000.0f;
         lastCrankUpdate = now;
         float revs = (latestRpm / 60.0f) * dt;
@@ -170,12 +168,16 @@ void loop() {
         uint16_t wholeRevs = (uint16_t)crankRevFraction;
 
         if (wholeRevs > 0) {
-
             cumulativeCrankRevs += wholeRevs;
             crankRevFraction -= wholeRevs;
             lastCrankEventTime = (uint16_t)(((uint64_t)now * 1024ULL / 1000ULL) & 0xFFFF);
+        }
 
-            // BLE payload with cadence
+        // --- Send notification at fixed interval (e.g., every 250 ms) ---
+        static unsigned long lastNotify = 0;
+        if (now - lastNotify >= 250) {
+            lastNotify = now;
+
             int16_t instPower = power;
             uint16_t powerFlags = 0x0020;
             uint8_t payload[8];

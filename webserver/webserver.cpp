@@ -53,7 +53,7 @@ void WebServer::WebServer_BroadCastToSensors(std::string data) {
             mg_json_get_num(mg_str(data.c_str()), "$.data.rpm", &rpm);
             cout << "Power: " << power << " RPM: " << rpm << endl;
 
-            string tmp = std::to_string(power) + "," + std::to_string(rpm);
+            string tmp = std::to_string(uint(power)) + "," + std::to_string(rpm);
             mg_ws_send(client.Connection, tmp.c_str(), strlen(tmp.c_str()), WEBSOCKET_OP_TEXT);
         }
         
