@@ -62,19 +62,23 @@ The project consists of three main components:
 ```
 Mode 1 - Web Dashboard (Read-only):
 Fitness Equipment (BLE) → Python Client → WebSocket → C++ Server → Web Browser
-   ↓ (HR, Speed, RPM, Power, Resistance, etc.)
+   [Data: HR, Speed, RPM, Power, Resistance, Distance, Calories]
 
 Mode 2 - Cycling Apps (via ESP32 BLE Bridge):
-Fitness Equipment (BLE) → Python Client → WebSocket → C++ Server → ESP32 (WebSocket) → Cycling App (BLE)
+Fitness Equipment (BLE) → Python Client → WebSocket → C++ Server 
+                                                         ↓
+                                            ESP32 (WebSocket Client)
+                                                         ↓
+                                              Cycling App (BLE)
 
 Mode 3 - HR-Based Training (Bidirectional Control):
-Fitness Equipment (BLE) ←──────────────────────────────────────────┐
-   ↓ (HR, Speed, RPM, etc.)                                        │
-Python Client → WebSocket → C++ Server → Web Browser               │
-   ↑                                         ↓ (Resistance Control)│
-   └─────────────── WebSocket ←──────────────┘                     │
-                                                                    │
-                                              BLE Write ────────────┘
+                     ┌─── BLE Read (HR, Speed, RPM, etc.)
+                     ↓
+Fitness Equipment ← ─ ─ ─ Python Client ← ─ ─ WebSocket ← ─ ─ C++ Server ← ─ ─ Web Browser
+                     │                                                          │ [User starts
+      BLE Write      │                  WebSocket (resistance command) ────────┘  HR training]
+   (Set Resistance)  │                                                  
+                     └─────────────────────────────────────────────────
 ```
 
 ## 🔧 Prerequisites
@@ -232,7 +236,12 @@ The dashboard includes an automatic training mode that adjusts resistance based 
    - Use exponential intervals to smooth resistance changes
 5. Click **"Stop HR based training"** to end the session and regain manual control
 
-**How it works**: The algorithm adjusts resistance at variable intervals (5-30 seconds) based on how far your current heart rate is from the upper limit. When you're far below the limit, adjustments happen more frequently to increase intensity; when you're close to or above the limit, adjustments happen less often and reduce resistance for a smoother, safer experience.
+**How it works**: 
+- The algorithm adjusts resistance at variable intervals (5-30 seconds)
+- Adjustment frequency depends on how far your heart rate is from the upper limit:
+  - **Far below the limit**: More frequent adjustments to increase intensity
+  - **Close to or above the limit**: Less frequent adjustments to reduce resistance
+- This creates a smoother, safer training experience
 
 ### Testing Without Hardware
 Use the test script to simulate bike data:
