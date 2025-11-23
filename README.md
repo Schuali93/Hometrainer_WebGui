@@ -26,6 +26,7 @@ A real-time web-based dashboard for monitoring indoor bike/hometrainer metrics. 
 - **Responsive UI** - Clean, modern dashboard with Material Design icons
 - **Multi-client support** - Handle multiple connected devices simultaneously
 - **Resistance control** - Adjust bike resistance remotely through the interface
+- **Heart rate-based training** - Automatic resistance adjustment to maintain target heart rate zone with configurable upper limit
 - **BLE Power Meter broadcasting** - Optional Arduino/ESP32 component to broadcast data to cycling apps (Zwift, TrainerRoad, etc.) via BLE Cycling Power Service
 
 ## 🏗️ Architecture
@@ -64,6 +65,11 @@ Fitness Equipment (BLE) → Python Client → WebSocket → C++ Server → Web B
 
 Mode 2 - Cycling Apps:
 Fitness Equipment (BLE) → Python Client → WebSocket → C++ Server → ESP32 (WebSocket) → Cycling App (BLE)
+
+Mode 3 - HR-Based Training:
+Fitness Equipment (BLE) → Python Client → WebSocket → C++ Server → Web Browser
+                                    ↑                                    ↓
+                                    └─────────── Resistance Control ─────┘
 ```
 
 ## 🔧 Prerequisites
@@ -209,6 +215,20 @@ If you've set up the BLE transmitter:
 4. Connect to "Power Meter" (the ESP32 device)
 5. Your app will now receive real-time power and cadence data from your hometrainer
 
+### 5. Using Heart Rate-Based Training
+The dashboard includes an automatic training mode that adjusts resistance based on your heart rate:
+
+1. In the web interface, navigate to the **TRAINING** section
+2. Set your desired upper heart rate limit (default: 140 bpm, range: 90-180 bpm)
+3. Click **"Start HR based training"** to begin
+4. The system will automatically:
+   - Increase resistance when your heart rate is below the limit
+   - Decrease resistance when your heart rate exceeds the limit
+   - Use exponential intervals to smooth resistance changes
+5. Click **"Stop HR based training"** to end the session and regain manual control
+
+**How it works**: The algorithm adjusts resistance at variable intervals (5-30 seconds) based on how far your current heart rate is from the target. When you're far from the target, adjustments happen more frequently; when you're close, they happen less often for a smoother experience.
+
 ### Testing Without Hardware
 Use the test script to simulate bike data:
 ```bash
@@ -274,6 +294,13 @@ Hometrainer_WebGui/
 - Confirm ESP32 is on the same network as the WebServer
 - Make sure NimBLE-Arduino and WebSockets libraries are installed
 - Try power cycling the ESP32 if it won't connect
+
+### Heart Rate-Based Training Issues
+- Ensure your fitness equipment broadcasts heart rate data via BLE
+- Verify heart rate values are being displayed in the dashboard before starting HR training
+- If resistance doesn't change, check that the Python client has control of the fitness machine
+- The resistance range is limited to 1-32; the system won't exceed these bounds
+- Heart rate values of 0 are ignored by the training algorithm
 
 ## 🤝 Contributing
 
