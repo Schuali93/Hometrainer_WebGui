@@ -7,6 +7,12 @@ websocket_connection = None
 writequeue = None
 gUid = None
 
+set_resistance_callback = None
+
+def register_set_resistance_callback(callback):
+    global set_resistance_callback
+    set_resistance_callback = callback
+
 # Define event handlers
 async def handle_uid(websocket, data):
     global gUid
@@ -42,6 +48,9 @@ async def websocket_reader():
             action = data.get("action")
             if action == "uid?":
                 await handle_uid(websocket_connection, data)
+            elif action == "setresistance":
+                print(f"\033[92mSetting resistance to: {data.get('resistance', 1)}\033[0m")
+                await set_resistance_callback(data.get("resistance", 1))
             else:
                 await handle_default(data)
 
@@ -93,5 +102,5 @@ async def websocket_setdata(data):
         print("Write queue is not initialized.")
 
 if __name__ == "__main__":
-    uri = "ws://192.168.0.88:8000/websocket"
+    uri = "ws://192.168.0.32:8000/websocket"
     asyncio.run(websocket_start(uri, "EnergeticsCT1000"))

@@ -39,7 +39,7 @@ body {
 .grid-container {
     display: grid;
     grid-template-columns: 260px 1fr 1fr;
-    grid-template-rows: 0.1fr 1fr 2fr;
+    grid-template-rows: 0.1fr 1fr 1.6fr;
     grid-template-areas:
         "sidebar header header"
         "sidebar main main"
@@ -62,6 +62,12 @@ body {
 .chart-container {
     grid-area: chart;
     padding: 20px 20px;
+}
+
+#charts-container {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
 }
 
 .bike-Charts {

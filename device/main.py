@@ -3,6 +3,11 @@ import websockets
 from bleak import BleakScanner, BleakClient
 import websocket_client
 
+bikeUid = "iConsole+0141"
+websocketConnParam = "ws://192.168.0.32:8000/websocket"
+target_device = None
+gClient = None
+
 # iConsole+0141 BLE GATT Services and Characteristics
 # Service: 0000fff0-0000-1000-8000-00805f9b34fb
 #   Characteristic: 0000fff1-0000-1000-8000-00805f9b34fb (Properties: ['notify'])
@@ -33,7 +38,7 @@ import websocket_client
 #   Characteristic: 02f00000-0000-0000-0000-00000000ff01 (Properties: ['write', 'write-without-response'])
 
 # The name of the device to connect to
-TARGET_DEVICE_NAME = "iConsole+0141"
+TARGET_DEVICE_NAME = bikeUid
 
 # 1. Write characteristic UUID
 UNKNOWN_WRITE_UUID = "00001001-0000-4d58-9070-612150a3410f"
@@ -52,27 +57,30 @@ READ_FITNESS_MACHINE_FEATURE = "00002acc-0000-1000-8000-00805f9b34fb"
 FMCP_UUID = "00002ad9-0000-1000-8000-00805f9b34fb"
 FMCP_SUCCESS = "0x800001"
 
-# CUSTOM
-WRITE_0 = "00001001-0000-4d58-9070-612150a3410f"
-
-bikeUid = "iConsole+0141"
 
 def clamp_level(level):
     return max(1, min(32, int(round(level))))
 
-async def set_resistance(client, level):
-    level = clamp_level(level)
-    value = level * 10
-    cmd = bytearray([0x04, value & 0xFF, (value >> 8) & 0xFF])
-    await client.write_gatt_char(FMCP_UUID, cmd, response=True)
+
+async def set_resistance(level):
+    global gClient
+
+    if gClient is not None:
+        level = clamp_level(level)
+        value = level * 10
+        cmd = bytearray([0x04, value & 0xFF, (value >> 8) & 0xFF])
+        print(f"\033[92mWriting resistance command: {cmd.hex()}\033[0m")
+        await gClient.write_gatt_char(FMCP_UUID, cmd, response=True)
 
 
 async def indication_handler(sender, data):
     print(f"Indication received from {sender}: {data.hex()}")
 
+
 async def notification_handler(sender, data):
     ret = parse_indoor_bike_data(data.hex())
     await websocket_client.websocket_setdata(ret)
+
 
 def reverse_bits_in_hex(hex_value):
     # Ensure the input is a 64-bit hexadecimal string
@@ -97,6 +105,7 @@ def reverse_bits_in_hex(hex_value):
     reversed_second_32 = reverse_bits(second_32)
     
     return reversed_first_32, reversed_second_32
+
 
 def parse_indoor_bike_data(data):
     global bikeUid
@@ -126,14 +135,18 @@ def parse_indoor_bike_data(data):
 
     return json_data
 
+
 async def main():
     # Start WebSocket connection
-    websocket_uri = "ws://192.168.0.88:8000/websocket"
+    websocket_uri = websocketConnParam
+    websocket_client.register_set_resistance_callback(set_resistance)
     asyncio.create_task(websocket_client.websocket_start(websocket_uri, bikeUid))
     await asyncio.sleep(1)  # Wait for WebSocket to connect
 
     # Discover devices
-    target_device = None
+    global target_device
+    global gClient
+
     while not target_device:
         print("Scanning for devices...")
         devices = await BleakScanner.discover()
@@ -153,6 +166,7 @@ async def main():
 
     # Connect to the device
     async with BleakClient(target_device.address) as client:
+        gClient = client
         print(f"Connected to {TARGET_DEVICE_NAME}")
 
         for service in client.services:
@@ -177,10 +191,6 @@ async def main():
         except Exception as e:
             print(f"Failed to send Request Control command: {e}")
 
-        lvl = 1
-        await set_resistance(client, lvl)
-        print(f"Set resistance level to {lvl}")
-
         try:
             # Keep the program running until a keyboard interrupt
             print("Listening for notifications... Press Ctrl+C to stop.")
@@ -193,6 +203,7 @@ async def main():
             await client.stop_notify(NOTIFY_INDOOR_BIKE_DATA)
             await client.stop_notify(FMCP_UUID)
             print("Unsubscribed and disconnected.")
+
 
 # Run the asyncio event loop
 asyncio.run(main())

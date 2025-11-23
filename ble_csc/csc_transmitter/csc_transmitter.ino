@@ -2,7 +2,7 @@
 #include <NimBLEDevice.h>
 #include <WiFi.h>
 #include <WebSocketsClient.h>
-#include "secrets.h"
+#include "../config/secrets.h"
 
 WebSocketsClient webSocket;
 
@@ -62,10 +62,10 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
         {
             Serial.printf("Received: %s\n", payload);
             // Expecting payload as "power,rpm" (e.g., "210,85")
-            int p = 0;
+            float p = 0.0f;
             float r = 0.0f;
-            if (sscanf((const char*)payload, "%d,%f", &p, &r) == 2) {
-                power = p;
+            if (sscanf((const char*)payload, "%f,%f", &p, &r) == 2) {
+                power = (int16_t)p;
                 latestRpm = r;
             } else {
                 power = atoi((const char*)payload);
@@ -140,6 +140,17 @@ void setup() {
     pAdvertising->start();
 
     Serial.println("Advertising Started");
+
+    // Device Information Service
+    NimBLEService* devInfoService = pServer->createService("180A"); // Device Information Service
+
+    NimBLECharacteristic* manufacturerChar = devInfoService->createCharacteristic("2A29", NIMBLE_PROPERTY::READ);
+    manufacturerChar->setValue("DIY");
+
+    NimBLECharacteristic* modelChar = devInfoService->createCharacteristic("2A24", NIMBLE_PROPERTY::READ);
+    modelChar->setValue("ESP32 Power");
+
+    devInfoService->start();
 }
 
 void loop() {
@@ -159,6 +170,7 @@ void loop() {
         uint16_t wholeRevs = (uint16_t)crankRevFraction;
 
         if (wholeRevs > 0) {
+
             cumulativeCrankRevs += wholeRevs;
             crankRevFraction -= wholeRevs;
             lastCrankEventTime = (uint16_t)(((uint64_t)now * 1024ULL / 1000ULL) & 0xFFFF);

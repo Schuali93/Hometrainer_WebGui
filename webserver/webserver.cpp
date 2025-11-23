@@ -154,7 +154,7 @@ void WebServer::WebServer_EventHandler(mg_connection *pConnection, int Event, vo
     else if (Event == MG_EV_WS_MSG)
     {
         struct mg_ws_message *wm = (struct mg_ws_message *) pEvent_Data;
-        cout << "Got websocket frame:" << wm->data.buf << endl;
+        // cout << "Got websocket frame:" << wm->data.buf << endl;
 
         // Parse clientId from the JSON body
         char * str = mg_json_get_str(wm->data, "$.msgtype");
@@ -165,7 +165,7 @@ void WebServer::WebServer_EventHandler(mg_connection *pConnection, int Event, vo
             char * uid = mg_json_get_str(wm->data, "$.uid");
             string id = "[" + to_string(pConnection->id) + "]" + ":" + uid;
 
-            cout << "Client identified with uid: " << id << endl;
+            // cout << "Client identified with uid: " << id << endl;
 
             char * type = mg_json_get_str(wm->data, "$.type");
 
@@ -186,6 +186,27 @@ void WebServer::WebServer_EventHandler(mg_connection *pConnection, int Event, vo
             // Broadcast measurement to all connected web clients
             server->WebServer_BroadCastToWebClients(string(wm->data.buf));
             server->WebServer_BroadCastToSensors(string(wm->data.buf));
+        }
+        else if (msgType == "indoor_bike_control")
+        {
+            cout << "Received control message for sensor client." << endl;
+            for (const auto& client : server->mClients)
+            {   
+                char * str = mg_json_get_str(wm->data, "$.tuid");
+                string tuid = string(str);
+                
+                size_t pos = client.Uid.find(":");
+                if (pos != std::string::npos) {
+                    std::string actualUid = client.Uid.substr(pos + 1); // Get substring after ':'
+                    if (actualUid == tuid) {
+                        cout << "Sending control to sensor client: " << client.Uid << endl;
+                        mg_ws_send(client.Connection, wm->data.buf, wm->data.len, WEBSOCKET_OP_TEXT);
+                    }
+                }
+
+                mg_free(str);
+                
+            }
         }
 
         mg_free(str);

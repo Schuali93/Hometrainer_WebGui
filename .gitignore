@@ -1,3 +1,6 @@
 ble_csc/csc_transmitter/secrets.h
 .vscode
 build
+config/secrets.h
+device/__pycache__
+device/venv

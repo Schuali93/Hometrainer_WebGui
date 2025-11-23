@@ -24,33 +24,8 @@ set(SOURCES
     mongoose.c
 )
 
-# BSP configuration
-if(USE_STUB)
-    message(STATUS "Using Stub implementation")
-    list(APPEND SOURCES
-        bsp/Stub/Stub_Gpio.c
-    )
-    include_directories(bsp/Stub)
-    add_definitions(-DUSE_STUB)
-elseif(USE_STM32)
-    message(STATUS "Using STM32 implementation")
-    list(APPEND SOURCES
-        bsp/Stm32/Stm32_Gpio.c
-    )
-    include_directories(bsp/Stm32)
-    add_definitions(-DUSE_STM32)
-endif()
-
-# Conditionally add packed_fs.c if MG_ENABLE_PACKED_FS is enabled
-if(MG_ENABLE_PACKED_FS)
-    add_definitions(-DMG_ENABLE_PACKED_FS=1)
-    list(APPEND SOURCES packed_fs.c)
-else()
-    add_definitions(-DMG_ENABLE_PACKED_FS=0)
-endif()
-
 # Include directories
-include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_SOURCE_DIR} ../config)
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${SOURCES})

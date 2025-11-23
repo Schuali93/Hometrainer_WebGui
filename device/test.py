@@ -44,7 +44,7 @@ def parse_indoor_bike_data(data):
 
 async def main():
     # Start the WebSocket connection
-    asyncio.create_task(websocket_client.websocket_start("ws://192.168.0.88:8000/websocket", "MockIndoorBike"))
+    asyncio.create_task(websocket_client.websocket_start("ws://192.168.0.32:8000/websocket", "MockIndoorBike"))
 
     while True:
     # Send test data to the WebSocket
