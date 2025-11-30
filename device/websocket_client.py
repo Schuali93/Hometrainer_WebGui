@@ -31,8 +31,15 @@ async def handle_default(data):
 # Create the WebSocket connection and store it in a global variable
 async def websocket_connect(uri):
     global websocket_connection
-    websocket_connection = await websockets.connect(uri)
-    print("Connected to WebSocket server.")
+    while True:
+        try:
+            websocket_connection = await websockets.connect(uri)
+            print("Connected to WebSocket server.")
+            break
+        except Exception as e:
+            print(f"WebSocket connection failed: {e}")
+            print(f"Retrying in 1 second...")
+            await asyncio.sleep(1)
 
 # WebSocket reader: listens for incoming messages
 async def websocket_reader():
