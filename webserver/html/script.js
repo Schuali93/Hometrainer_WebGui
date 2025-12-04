@@ -52,16 +52,13 @@ function initCards() {
     if (trainingContainer) {
         // HR Training Card
         const hrCard = document.createElement("div");
-        hrCard.classList.add("card");
+        hrCard.classList.add("card", "hr-card");
         hrCard.id = "hr-training-card";
-        hrCard.style.cursor = "pointer";
-        // State for toggling
 
         const icon = document.createElement("span");
-        icon.classList.add("material-icons-outlined");
+        icon.classList.add("material-icons-outlined", "hr-play");
         icon.textContent = "play_arrow";
-        icon.style.fontSize = "32px";
-        icon.style.color = "#24ec60";
+        icon.id = "hr-training-icon";
 
         const text = document.createElement("p");
         text.classList.add("uid");
@@ -69,42 +66,31 @@ function initCards() {
 
         hrCard.appendChild(icon);
         hrCard.appendChild(text);
-        // Set initial border color (green)
-        hrCard.style.borderLeft = "7px solid #24ec60";
         trainingContainer.appendChild(hrCard);
-
-        hrCard.onclick = () => handleHrCardClick(icon, text, hrCard, limitInput);
 
         // HR Upper Limit Card
         const hrLimitCard = document.createElement("div");
-        hrLimitCard.classList.add("card");
+        hrLimitCard.classList.add("card", "hr-limit-card");
         hrLimitCard.id = "hr-limit-card";
-        hrLimitCard.style.display = "flex";
-        hrLimitCard.style.flexDirection = "column";
-        hrLimitCard.style.alignItems = "center";
-        hrLimitCard.style.justifyContent = "center";
 
         const limitLabel = document.createElement("p");
-        limitLabel.classList.add("uid");
+        limitLabel.classList.add("uid", "hr-limit-label");
         limitLabel.textContent = "Upper HR Limit";
         limitLabel.setAttribute("for", "hr-limit-input");
-        limitLabel.style.marginBottom = "8px";
 
         const limitInput = document.createElement("input");
         limitInput.type = "number";
         limitInput.id = "hr-limit-input";
+        limitInput.classList.add("hr-limit-input");
         limitInput.min = "90";
         limitInput.max = "180";
         limitInput.value = "140";
-        limitInput.style.width = "70px";
-        limitInput.style.textAlign = "center";
-        limitInput.style.padding = "4px";
-        limitInput.style.borderRadius = "4px";
-        limitInput.style.border = "1px solid #d2d2d3";
 
         hrLimitCard.appendChild(limitLabel);
         hrLimitCard.appendChild(limitInput);
         trainingContainer.appendChild(hrLimitCard);
+
+        hrCard.onclick = () => handleHrCardClick(icon, text, hrCard, limitInput);
     }
 }
 
@@ -112,25 +98,27 @@ function handleHrCardClick(icon, text, hrCard, limitInput) {
     hrTrainingActive = !hrTrainingActive;
     if (hrTrainingActive) {
         icon.textContent = "stop";
-        icon.style.color = "#cc3c43";
+        icon.classList.remove("hr-play");
+        icon.classList.add("hr-stop");
         text.textContent = "Stop HR based training";
-        hrCard.style.borderLeft = "7px solid #cc3c43";
+        hrCard.classList.add("active");
         limitInput.disabled = true;
-        limitInput.style.backgroundColor = "#f0f0f0";
+        limitInput.classList.add("disabled");
         plotCalcNextDataInterval();
     } else {
         icon.textContent = "play_arrow";
-        icon.style.color = "#24ec60";
+        icon.classList.remove("hr-stop");
+        icon.classList.add("hr-play");
         text.textContent = "Start HR based training";
-        hrCard.style.borderLeft = "7px solid #24ec60";
+        hrCard.classList.remove("active");
         limitInput.disabled = false;
-        limitInput.style.backgroundColor = "#fff";
+        limitInput.classList.remove("disabled");
     }
 }
 
 function calcNextDataInterval(heartrate, hr_min, limit, inverse = false) {
-    const t_min = 5000;   // interval at hr_min
-    const t_max = 30000;  // interval at limit
+    const t_min = 10000;   // interval at hr_min
+    const t_max = 50000;  // interval at limit
     t = 0.0;
 
     // Clamp heartrate to [hr_min, limit]
@@ -240,12 +228,6 @@ function initializeChart() {
                 x: { title: { display: true, text: 'Time (s)' } },
                 y: { beginAtZero: true, min: 0, max: 200, title: { display: true, text: 'Values' } }
             },
-            plugins: {
-                zoom: {
-                    zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' },
-                    pan: { enabled: true, mode: 'x', threshold: 10 }
-                }
-            }
         }
     });
 }
@@ -341,7 +323,7 @@ function plotCalcNextDataInterval() {
     const canvas = document.getElementById('interval-plot');
     const currentHeartrate = parseInt(document.getElementById("heartrate-value").textContent.match(/\d+/));
     const yMin = 0; // or your actual min interval (in seconds)
-    const yMax = 40; // or your actual max interval (in seconds)
+    const yMax = 60; // or your actual max interval (in seconds)
 
     for (let hr = hr_min; hr <= limit; hr += 1) {
         hrs.push(hr);
@@ -396,7 +378,8 @@ function plotCalcNextDataInterval() {
             ]
         },
         options: {
-            responsive: false,
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 x: { title: { display: true, text: 'Heartrate (bpm)' }, min: hr_min, max: limit },
                 y: { title: { display: true, text: 'Interval (s)' }, min: yMin, max: yMax }
@@ -441,7 +424,8 @@ function plotStepChart() {
             ]
         },
         options: {
-            responsive: false,
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 x: { title: { display: true, text: 'Seconds' } },
                 y: { title: { display: true, text: 'Step Value' },
