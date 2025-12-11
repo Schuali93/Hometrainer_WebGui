@@ -115,7 +115,7 @@ def parse_indoor_bike_data(data):
     rpm = byteData[6] / 2.0
     distance = byteData[10] / 1000.0
     resistance = byteData[13]
-    power = byteData[15]
+    power = (byteData[16] << 8) | byteData[15]
     calories = byteData[19]
     heartrate = byteData[24]
 
